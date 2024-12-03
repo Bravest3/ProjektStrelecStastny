@@ -9,76 +9,76 @@
 #include <chrono>
 #include <ctime>
 
-namespace fs = std::filesystem;
+namespace fs = std::filesystem; // nadefinovani fs
 
 // Struktura pro reprezentaci schránky
 struct Clipboard {
-    std::set<fs::path> files; // Více souborů/složek (unikátní výběr)
+    std::set<fs::path> files; // unikatnost kazde slozky
 
     void add(const fs::path& file) {
         files.insert(file);
-    }
+    } // definice funkce add, zajisteni unikatnosti
 
     void clear() {
         files.clear();
     }
-};
+};          // definice funkce clear
 
 // Struktura pro reprezentaci panelu
 struct FilePanel {
-    std::string currentPath;
-    std::vector<fs::directory_entry> entries;
+    std::string currentPath;   
+    std::vector<fs::directory_entry> entries;   // definice vectoru entries, directory_entry je typ z knihovny filesystem
     int selectedIndex;
     std::set<fs::path> selectedFiles; // Soubory vybrané pro hromadné operace
 
     FilePanel(const std::string& path) : currentPath(path), selectedIndex(0) {
         refreshEntries();
-    }
+    }  // konstruktor, zacina jednotlivy panel, proto selectedindex 0, protoze prvni polozka v seznamu
 
-    void refreshEntries();
+    void refreshEntries();        
     fs::directory_entry selectedEntry();
-    void navigateUp();
-    void navigateDown();
-    void enterDirectory();
-    void goBack();
-    void toggleSelection();   // Přepínání výběru souboru/složky
-    void clearSelection();    // Zrušení výběru všech souborů
-    void createNewFile();     // Vytvoření nového souboru
-    void createNewFolder();   // Vytvoření nové složky
-    void deleteSelectedFile(); // Odstranění aktuálně vybraného souboru/složky
+    void navigateUp(); klavesa w
+    void navigateDown(); klavesa s
+    void enterDirectory(); klavesa o
+    void goBack(); klavesa p
+    void toggleSelection();   // soubor/slozka
+    void clearSelection();    // zruseni vyberu
+    void createNewFile();     // klavesa n
+    void createNewFolder();   // klavesa k
+    void deleteSelectedFile(); // klavesa l
     void displayRow(size_t rowIndex, bool isActive, int width) const;
     std::string getLastModifiedTime(const fs::path& path) const;
-    std::string getFileSizeOrDir(const fs::directory_entry& entry) const;
+    std::string getFileSizeOrDir(const fs::directory_entry& entry) const;        /definice jednotlivych funkci
 };
 
-// Implementace metod FilePanel
+// implementace FilePanel
 void FilePanel::refreshEntries() {
     entries.clear();
     try {
         for (const auto& entry : fs::directory_iterator(currentPath)) {
             entries.push_back(entry);
         }
-    }
+    }        // try vyzkousi tento kod
     catch (const std::exception& e) {
         std::cerr << "Chyba pri ctení adresare: " << e.what() << "\n";
     }
-}
+}      // kdyby nastala chyba
 
 fs::directory_entry FilePanel::selectedEntry() {
-    if (entries.empty()) return {};
+    if (entries.empty()) return {};  // overuje zda je seznam entries prazdny
     return entries[selectedIndex];
-}
+} // kdyz prazdny vrati promenou selectedIndex    
 
 void FilePanel::navigateUp() {
     if (selectedIndex > 0) {
         --selectedIndex;
     }
-}
+} //snizeni promenne selectedindex o jedna, posun dolu
 
 void FilePanel::navigateDown() {
     if (selectedIndex < entries.size() - 1) {
         ++selectedIndex;
-    }
+    }zvyseni promenne selectedIndex o jedna, posun nahoru
 }
 
 void FilePanel::enterDirectory() {
@@ -87,7 +87,7 @@ void FilePanel::enterDirectory() {
         selectedIndex = 0;
         refreshEntries();
         clearSelection();
-    }
+    } //vstoupeni do slozky, klavesa o
 }
 
 void FilePanel::goBack() {
@@ -96,7 +96,7 @@ void FilePanel::goBack() {
         selectedIndex = 0;
         refreshEntries();
         clearSelection();
-    }
+    } // klavesa p, jit zpatky
 }
 
 void FilePanel::toggleSelection() {
@@ -109,25 +109,25 @@ void FilePanel::toggleSelection() {
             selectedFiles.insert(filePath); // Přidání do výběru
         }
     }
-}
+}  // vyber jednotlivych souboru pro praci s nimi, klavesa m
 
 void FilePanel::clearSelection() {
     selectedFiles.clear();
-}
+} //odstraneni vsech vybranych souboru
 
 void FilePanel::createNewFile() {
     std::cout << "Zadejte nazev noveho souboru: ";
     std::string fileName;
     std::cin >> fileName;
     fs::path filePath = fs::path(currentPath) / fileName;
-
+            // vytvoreni noveho souboru, klavesa n
     try {
         std::ofstream(filePath.string()); // Vytvoří prázdný soubor
         refreshEntries();
         std::cout << "Soubor \"" << fileName << "\" vytvoren.\n";
     }
     catch (const std::exception& e) {
-        std::cerr << "Chyba pri vytvareni souboru: " << e.what() << "\n";
+        std::cerr << "Chyba pri vytvareni souboru: " << e.what() << "\n"; // chyba pri vytvareni
     }
 }
 
@@ -135,15 +135,15 @@ void FilePanel::createNewFolder() {
     std::cout << "Zadejte nazev nove slozky: ";
     std::string folderName;
     std::cin >> folderName;
-    fs::path folderPath = fs::path(currentPath) / folderName;
-
+    fs::path folderPath = fs::path(currentPath) / folderName;       // vytvareni nove slozky, klavesa k
+                                                
     try {
         fs::create_directory(folderPath); // Vytvoření složky
         refreshEntries();
         
     }
     catch (const std::exception& e) {
-        std::cerr << "Chyba pri vytvareni slozky: " << e.what() << "\n";
+        std::cerr << "Chyba pri vytvareni slozky: " << e.what() << "\n"; 
     }
 }
 
@@ -151,14 +151,14 @@ void FilePanel::deleteSelectedFile() {
     if (entries.empty()) {
         std::cout << "Zadny soubor k odstraneni.\n";
         return;
-    }
-
+    }            // funkce na smazani souboru, klavesa l
+            
     fs::path filePath = selectedEntry().path();
     std::cout << "Opravdu chcete smazat \"" << filePath.filename().string() << "\"? (y/n): ";
     char confirmation;
     std::cin >> confirmation;
 
-    if (confirmation == 'y' || confirmation == 'Y') {
+    if (confirmation == 'y' || confirmation == 'Y') {        //potvrzeni volby smazani
         try {
             if (fs::is_directory(filePath)) {
                 fs::remove_all(filePath); // Smaže složku a její obsah
@@ -191,7 +191,7 @@ std::string FilePanel::getLastModifiedTime(const fs::path& path) const {
     catch (...) {
         return "N/A";
     }
-}
+}        // funkce na ziskavani casu posledni upravy
 
 std::string FilePanel::getFileSizeOrDir(const fs::directory_entry& entry) const {
     if (fs::is_directory(entry)) {
@@ -204,7 +204,7 @@ std::string FilePanel::getFileSizeOrDir(const fs::directory_entry& entry) const 
     catch (...) {
         return "N/A";
     }
-}
+} // funkce na ziskavani velikosti souboru ci slozky
 
 void FilePanel::displayRow(size_t rowIndex, bool isActive, int width) const {
     if (rowIndex == 0) {
@@ -230,7 +230,7 @@ void FilePanel::displayRow(size_t rowIndex, bool isActive, int width) const {
     else {
         std::cout << std::setw(width) << " ";
     }
-}
+}  // struktura panelu
 
 // Funkce pro vyčištění konzole
 void clearScreen() {
