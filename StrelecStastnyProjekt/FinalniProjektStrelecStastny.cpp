@@ -1,4 +1,8 @@
 ﻿#include "FinalniProjektStrelecStastny.h"
+// CMakeProject16.cpp: Definuje vstupní bod pro aplikaci.
+//
+
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -26,7 +30,7 @@ struct Clipboard {
 
 // Struktura pro reprezentaci panelu
 struct FilePanel {
-    std::string currentPath;   
+    std::string currentPath;
     std::vector<fs::directory_entry> entries;   // definice vectoru entries, directory_entry je typ z knihovny filesystem
     int selectedIndex;
     std::set<fs::path> selectedFiles; // Soubory vybrané pro hromadné operace
@@ -35,20 +39,20 @@ struct FilePanel {
         refreshEntries();
     }  // konstruktor, zacina jednotlivy panel, proto selectedindex 0, protoze prvni polozka v seznamu
 
-    void refreshEntries();        
+    void refreshEntries();
     fs::directory_entry selectedEntry();
-    void navigateUp(); klavesa w
-    void navigateDown(); klavesa s
-    void enterDirectory(); klavesa o
-    void goBack(); klavesa p
-    void toggleSelection();   // soubor/slozka
+    void navigateUp();//  klavesa w
+        void navigateDown(); // klavesa s
+        void enterDirectory(); // klavesa o
+        void goBack(); // klavesa p
+        void toggleSelection();   // soubor/slozka
     void clearSelection();    // zruseni vyberu
     void createNewFile();     // klavesa n
     void createNewFolder();   // klavesa k
     void deleteSelectedFile(); // klavesa l
     void displayRow(size_t rowIndex, bool isActive, int width) const;
     std::string getLastModifiedTime(const fs::path& path) const;
-    std::string getFileSizeOrDir(const fs::directory_entry& entry) const;        /definice jednotlivych funkci
+    std::string getFileSizeOrDir(const fs::directory_entry& entry) const; // definice jednotlivych funkci
 };
 
 // implementace FilePanel
@@ -78,7 +82,7 @@ void FilePanel::navigateUp() {
 void FilePanel::navigateDown() {
     if (selectedIndex < entries.size() - 1) {
         ++selectedIndex;
-    }zvyseni promenne selectedIndex o jedna, posun nahoru
+    }// zvyseni promenne selectedIndex o jedna, posun nahoru
 }
 
 void FilePanel::enterDirectory() {
@@ -120,7 +124,7 @@ void FilePanel::createNewFile() {
     std::string fileName;
     std::cin >> fileName;
     fs::path filePath = fs::path(currentPath) / fileName;
-            // vytvoreni noveho souboru, klavesa n
+    // vytvoreni noveho souboru, klavesa n
     try {
         std::ofstream(filePath.string()); // Vytvoří prázdný soubor
         refreshEntries();
@@ -136,14 +140,14 @@ void FilePanel::createNewFolder() {
     std::string folderName;
     std::cin >> folderName;
     fs::path folderPath = fs::path(currentPath) / folderName;       // vytvareni nove slozky, klavesa k
-                                                
+
     try {
         fs::create_directory(folderPath); // Vytvoření složky
         refreshEntries();
-        
+
     }
     catch (const std::exception& e) {
-        std::cerr << "Chyba pri vytvareni slozky: " << e.what() << "\n"; 
+        std::cerr << "Chyba pri vytvareni slozky: " << e.what() << "\n";
     }
 }
 
@@ -152,7 +156,7 @@ void FilePanel::deleteSelectedFile() {
         std::cout << "Zadny soubor k odstraneni.\n";
         return;
     }            // funkce na smazani souboru, klavesa l
-            
+
     fs::path filePath = selectedEntry().path();
     std::cout << "Opravdu chcete smazat \"" << filePath.filename().string() << "\"? (y/n): ";
     char confirmation;
@@ -240,36 +244,35 @@ void clearScreen() {
     system("clear");
 #endif
 }
-
 // Hlavní funkce
 int main() {
-    const int panelWidth = 60;  // Šířka jednoho panelu
-    FilePanel leftPanel("/");
+    const int panelWidth = 60;  // Nastavuje konstantní šířku pro každý panel
+    FilePanel leftPanel("/"); // Levý a pravy panel zobrazující obsah kořenového adresáře ("/")
     FilePanel rightPanel("/");
-    Clipboard clipboard; // Schránka pro kopírování
-    bool activeLeft = true;
+    Clipboard clipboard; // Schránka pro kopírování souboru a složek
+    bool activeLeft = true; // definice proměnné bool pro navazující while
 
-    while (true) {
+    while (true) { //pokud je proměnná active=true
         clearScreen();
 
         std::cout << "=<=<=< Dvou-panelovy spravce souboru >=>=>=\n";
         std::cout << "Ovladani pomoci funkcnich klaves: w/s (nahoru/dolu), a/d (prepnuti panelu), m (vybrat vice), "
             "c (kopirovat), v (vlozit), n (novy soubor), k (nova slozka), l (smazat), "
             "o (otevrit), p (zpet), q (konec)\n Pokyny k pouziti: Pred kazdym kopirovanim je nutne nejdrive soubor ci slozku oznacit klavesou m\n";
-            
-        size_t maxRows = std::max(leftPanel.entries.size(), rightPanel.entries.size()) + 1;
+
+        size_t maxRows = std::max(leftPanel.entries.size(), rightPanel.entries.size()) + 1; //nastavuje počet řádků potřebný pro zobrazení panelu +1
 
         for (size_t i = 0; i < maxRows; ++i) {
             leftPanel.displayRow(i, activeLeft, panelWidth);
-            std::cout << " | ";
+            std::cout << " | "; // panely jsou odděleny svislou čarou
             rightPanel.displayRow(i, !activeLeft, panelWidth);
             std::cout << "\n";
-        }
+        } //zobrazení obou panelů na jeden řádek
 
-        FilePanel& activePanel = activeLeft ? leftPanel : rightPanel;
+        FilePanel& activePanel = activeLeft ? leftPanel : rightPanel; // indikator aktivniho panelu
 
         char ch;
-        std::cin >> ch;
+        std::cin >> ch; //zadani funkcnich klaves
 
         switch (ch) {
         case 'w': // Nahoru
@@ -329,3 +332,6 @@ int main() {
     }
 }
 
+ 
+
+ 
